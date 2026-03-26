@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>NS Packaging – Order Form</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#f0ede6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#1a1a1a;padding-bottom:90px}
+header{background:#1a1a1a;padding:14px 16px;position:sticky;top:0;z-index:100;border-bottom:3px solid #c84b2f;display:flex;justify-content:space-between;align-items:center}
+h1{font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.3px}
+.sub{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.abtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#ccc;font-size:11px;padding:7px 13px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.abtn:active{background:rgba(255,255,255,.2)}
+.wrap{max-width:660px;margin:0 auto;padding:16px 13px}
+.lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#888;font-weight:700;margin-bottom:9px}
+
+/* STORE TABS */
+.stabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}
+.stab{padding:9px 14px;font-size:13px;font-weight:500;background:#fff;border:2px solid #ddd;border-radius:24px;color:#888;cursor:pointer;white-space:nowrap;transition:all .18s;-webkit-appearance:none}
+.stab:active{transform:scale(.96)}
+.stab.on{background:#1a1a1a;border-color:#1a1a1a;color:#fff;font-weight:700}
+.stab.done{border-color:#2d7a4f;color:#2d7a4f;background:#f0faf5}
+.stab.done.on{background:#2d7a4f;border-color:#2d7a4f;color:#fff}
+.saddr{font-size:11px;color:#888;font-family:monospace;min-height:16px;margin-top:6px}
+
+.divider{height:1px;background:#ddd;margin:16px 0}
+
+/* PRODUCT TABLE */
+.tbl{background:#fff;border-radius:11px;border:1px solid #ddd;overflow:hidden}
+.th{display:grid;grid-template-columns:1fr 54px 76px 76px;padding:9px 12px;background:#1a1a1a;gap:4px}
+.th span{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:#aaa;font-weight:600}
+.th span:not(:first-child){text-align:center}
+.tr{display:grid;grid-template-columns:1fr 54px 76px 76px;padding:9px 12px;gap:4px;align-items:center;border-top:1px solid #eee;transition:background .15s}
+.tr:nth-child(odd){background:#fafaf8}
+.tr.done{background:#f0faf5}
+.pn{font-size:12px;font-weight:500;line-height:1.3}
+.qs{width:100%;padding:6px 2px;font-size:13px;text-align:center;background:#f0ede6;border:1.5px solid #ddd;border-radius:7px;-webkit-appearance:none;appearance:none;cursor:pointer;font-family:monospace;transition:all .15s}
+.qs:focus{outline:none}
+.qs.on{border-color:#c84b2f;background:#fff5f2;color:#c84b2f;font-weight:700}
+.up{font-size:11px;text-align:center;color:#bbb;font-family:monospace;transition:color .2s}
+.up.has{color:#1a1a1a}
+.rt{font-size:11px;font-weight:700;text-align:center;color:#ccc;font-family:monospace;transition:color .2s}
+.rt.on{color:#2d7a4f}
+.totbar{display:flex;justify-content:space-between;align-items:center;padding:13px 12px;background:#1a1a1a;transition:background .3s}
+.totbar.has{background:#2d7a4f}
+.totbar span{font-size:12px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
+.totnum{font-size:20px;font-weight:700;color:#fff;font-family:monospace}
+
+textarea{width:100%;padding:12px;font-size:13px;background:#fff;border:2px solid #ddd;border-radius:10px;color:#1a1a1a;resize:vertical;min-height:65px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif}
+textarea:focus{outline:none;border-color:#1a1a1a}
+
+/* BOTTOM BAR */
+.botbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #ddd;padding:10px 13px;z-index:90}
+.botinner{max-width:660px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.prog{font-size:11px;color:#888;flex-shrink:0;font-family:monospace}
+.prog b{color:#2d7a4f;font-size:13px}
+.expbtn{flex:1;padding:14px;background:#c84b2f;color:#fff;font-size:14px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;border:none;border-radius:10px;cursor:pointer;transition:background .2s}
+.expbtn.ready{background:#2d7a4f}
+.expbtn:active{opacity:.85}
+
+.mb14{margin-bottom:14px}
+.mb9{margin-bottom:9px}
+
+/* OVERLAYS */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;align-items:center;justify-content:center;padding:15px;-webkit-overflow-scrolling:touch}
+.ov.on{display:flex}
+@keyframes pop{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+
+/* EXPORT CARD */
+.ecard{position:relative;background:#fff;border-radius:18px;padding:24px 18px 20px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;animation:pop .22s ease;-webkit-overflow-scrolling:touch}
+.ecard h2{font-size:18px;font-weight:800;text-align:center;margin-bottom:14px}
+.xbtn{position:absolute;top:12px;left:12px;width:30px;height:30px;border-radius:50%;border:none;background:#eee;color:#555;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sblock{background:#f0faf5;border:1px solid #c3e6d0;border-radius:10px;padding:12px 13px;margin-bottom:10px}
+.sblock h3{font-size:13px;font-weight:800;color:#1a1a1a;margin-bottom:2px}
+.sblock .sa{font-size:10px;color:#888;font-family:monospace;margin-bottom:8px}
+.sblock table{width:100%;font-size:11px;border-collapse:collapse;font-family:monospace}
+.sblock td{padding:3px 0;color:#333}
+.sblock td:last-child{text-align:right;font-weight:700;color:#2d7a4f}
+.stot{display:flex;justify-content:space-between;border-top:1px solid #c3e6d0;margin-top:6px;padding-top:6px;font-size:12px;font-weight:700;font-family:monospace;color:#2d7a4f}
+.grow{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#2d7a4f;border-radius:10px;margin:12px 0 14px}
+.grow span{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase}
+.grow strong{font-size:20px;color:#fff;font-family:monospace}
+.btnrow{display:flex;gap:9px}
+.pbtn{flex:1;padding:13px;background:#2d7a4f;color:#fff;font-size:13px;font-weight:800;border:none;border-radius:10px;cursor:pointer}
+.pbtn:active{background:#225e3c}
+.nbtn{flex:1;padding:13px;background:#1a1a1a;color:#fff;font-size:13px;font-weight:800;border:none;border-radius:10px;cursor:pointer}
+
+/* LOGIN */
+.lcard{background:#fff;border-radius:18px;padding:32px 22px 24px;max-width:300px;width:100%;text-align:center;animation:pop .22s ease}
+.lcard h2{font-size:18px;font-weight:800;margin-bottom:6px}
+.lcard p{font-size:12px;color:#888;margin-bottom:18px}
+.pinin{width:100%;padding:14px;font-size:24px;text-align:center;letter-spacing:10px;border:2px solid #ddd;border-radius:10px;margin-bottom:10px;font-family:monospace}
+.pinin:focus{outline:none;border-color:#1a1a1a}
+.perr{color:#c84b2f;font-size:11px;min-height:16px;margin-bottom:8px}
+.lbtn{width:100%;padding:13px;background:#1a1a1a;color:#fff;font-size:14px;font-weight:800;border:none;border-radius:10px;cursor:pointer}
+.lcanc{margin-top:10px;background:none;border:none;color:#888;font-size:13px;cursor:pointer}
+
+/* ADMIN */
+.aov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.aov.on{display:block}
+.apanel{background:#fff;max-width:660px;margin:0 auto;min-height:100vh;padding-bottom:50px}
+.ahd{background:#1a1a1a;padding:15px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;border-bottom:3px solid #c84b2f}
+.ahd h2{font-size:16px;font-weight:800;color:#fff}
+.acls{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:17px;width:34px;height:34px;border-radius:8px;cursor:pointer}
+.abody{padding:16px 14px}
+.atabs{display:flex;gap:8px;margin-bottom:16px}
+.atab{flex:1;padding:10px;font-size:12px;font-weight:700;border:2px solid #ddd;border-radius:9px;background:#fff;color:#888;cursor:pointer}
+.atab.on{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
+.atc{display:none}
+.atc.on{display:block}
+.attl{font-size:13px;font-weight:800;margin-bottom:10px;padding-bottom:7px;border-bottom:2px solid #eee}
+.api,.asi{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid #eee;border-radius:9px;margin-bottom:6px;background:#fafaf8}
+.api:nth-child(even),.asi:nth-child(even){background:#fff}
+.ani{flex:1;padding:7px 9px;font-size:12px;border:1.5px solid #ddd;border-radius:7px}
+.ani:focus{outline:none;border-color:#1a1a1a}
+.apip{width:80px;padding:7px;font-size:12px;border:1.5px solid #ddd;border-radius:7px;text-align:center;font-family:monospace}
+.apip:focus{outline:none;border-color:#c84b2f}
+.akni{width:108px;padding:7px 8px;font-size:11px;border:1.5px solid #ddd;border-radius:7px;font-weight:600;font-family:monospace}
+.aai{flex:1;padding:7px 8px;font-size:11px;border:1.5px solid #ddd;border-radius:7px}
+.del{width:30px;height:30px;border-radius:7px;border:none;background:#ffe8e4;color:#c84b2f;font-size:14px;cursor:pointer;flex-shrink:0}
+.del:active{background:#c84b2f;color:#fff}
+.addrow{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.addinp{flex:1;min-width:120px;padding:10px 11px;font-size:12px;border:2px dashed #ddd;border-radius:9px}
+.addinp:focus{outline:none;border-color:#1a1a1a;border-style:solid}
+.addbtn{padding:10px 15px;background:#1a1a1a;color:#fff;font-size:12px;font-weight:700;border:none;border-radius:9px;cursor:pointer;white-space:nowrap}
+.savall{width:100%;padding:14px;background:#2d7a4f;color:#fff;font-size:14px;font-weight:800;border:none;border-radius:10px;cursor:pointer;margin-top:22px}
+.toast{position:fixed;bottom:85px;left:50%;transform:translateX(-50%);background:#2d7a4f;color:#fff;padding:11px 22px;border-radius:9px;font-weight:700;font-size:13px;z-index:9999;white-space:nowrap;animation:pop .2s ease}
+
+@media print{
+  header,.abtn,.botbar,.stabs,.saddr,.divider,.lbl,textarea,.mb14,.mb9{display:none!important}
+  body{background:#fff;padding:0}
+  .wrap{padding:0;max-width:100%}
+  .pdoc{display:block!important}
+  .tbl{border:1px solid #bbb;margin-bottom:16px;page-break-inside:avoid}
+  .th{background:#1a1a1a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .totbar{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .totbar.has{background:#2d7a4f!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tr:nth-child(odd){background:#f7f7f7!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tr.done{background:#f0faf5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .qs{border:none;background:transparent;font-weight:700;-webkit-appearance:none;appearance:none}
+}
+.pdoc{display:none}
+.ph{margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid #1a1a1a;font-family:sans-serif}
+.ph h2{font-size:17px;font-weight:800}
+.ph p{font-size:11px;color:#666;margin-top:3px}
+.psh{margin:18px 0 6px;padding-bottom:5px;border-bottom:2px solid #2d7a4f;font-family:sans-serif}
+.psh h3{font-size:13px;font-weight:800;color:#2d7a4f}
+.psh p{font-size:10px;color:#666;margin-top:1px}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>NS Packaging</h1><div class="sub">Supply Order Form</div></div>
+  <button class="abtn" onclick="openAdm()">&#9881; Admin</button>
+</header>
+
+<div class="wrap">
+  <div class="pdoc" id="pdoc"></div>
+
+  <div class="mb9">
+    <div class="lbl">Select Store</div>
+    <div class="stabs" id="stabs">
+<button class="stab" id="stab0" onclick="selStore(0)">Bronx</button>
+<button class="stab" id="stab1" onclick="selStore(1)">Bronx-2</button>
+<button class="stab" id="stab2" onclick="selStore(2)">Bronx-3</button>
+<button class="stab" id="stab3" onclick="selStore(3)">Brooklyn Broadway</button>
+<button class="stab" id="stab4" onclick="selStore(4)">Fulton-1</button>
+<button class="stab" id="stab5" onclick="selStore(5)">Fulton-2</button>
+<button class="stab" id="stab6" onclick="selStore(6)">Brooklyn New</button>
+<button class="stab" id="stab7" onclick="selStore(7)">Willoughby</button>
+<button class="stab" id="stab8" onclick="selStore(8)">Manhattan</button>
+<button class="stab" id="stab9" onclick="selStore(9)">Queen</button>
+    </div>
+    <div class="saddr" id="saddr">Select a store above to begin.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="mb9"><div class="lbl">Order Items</div></div>
+  <div class="tbl">
+    <div class="th">
+      <span>Product</span><span>Qty</span><span>Unit $</span><span>Total</span>
+    </div>
+    <div id="rows">
+<div class="tr" id="row0"><div class="pn">10" Pizza Boxes</div><select class="qs" id="q0" onchange="ur(0)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up0">—</div><div class="rt" id="t0">—</div></div>
+<div class="tr" id="row1"><div class="pn">12" Pizza Boxes</div><select class="qs" id="q1" onchange="ur(1)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up1">—</div><div class="rt" id="t1">—</div></div>
+<div class="tr" id="row2"><div class="pn">18" Pizza Boxes</div><select class="qs" id="q2" onchange="ur(2)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up2">—</div><div class="rt" id="t2">—</div></div>
+<div class="tr" id="row3"><div class="pn">Paper Plate</div><select class="qs" id="q3" onchange="ur(3)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up3">—</div><div class="rt" id="t3">—</div></div>
+<div class="tr" id="row4"><div class="pn">Aluminum Foil Roll</div><select class="qs" id="q4" onchange="ur(4)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up4">—</div><div class="rt" id="t4">—</div></div>
+<div class="tr" id="row5"><div class="pn">7" Aluminum Pan</div><select class="qs" id="q5" onchange="ur(5)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up5">—</div><div class="rt" id="t5">—</div></div>
+<div class="tr" id="row6"><div class="pn">7" Dome Lid Wax Paper</div><select class="qs" id="q6" onchange="ur(6)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up6">—</div><div class="rt" id="t6">—</div></div>
+<div class="tr" id="row7"><div class="pn">10*10 3/4</div><select class="qs" id="q7" onchange="ur(7)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up7">—</div><div class="rt" id="t7">—</div></div>
+<div class="tr" id="row8"><div class="pn">Quick Fold Napkin</div><select class="qs" id="q8" onchange="ur(8)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up8">—</div><div class="rt" id="t8">—</div></div>
+<div class="tr" id="row9"><div class="pn">Brown Paper Towel</div><select class="qs" id="q9" onchange="ur(9)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up9">—</div><div class="rt" id="t9">—</div></div>
+<div class="tr" id="row10"><div class="pn">Smile Face Shopping Bag</div><select class="qs" id="q10" onchange="ur(10)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up10">—</div><div class="rt" id="t10">—</div></div>
+<div class="tr" id="row11"><div class="pn">#12 Grocery Paper Bag</div><select class="qs" id="q11" onchange="ur(11)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up11">—</div><div class="rt" id="t11">—</div></div>
+<div class="tr" id="row12"><div class="pn">16 oz Cold Cup</div><select class="qs" id="q12" onchange="ur(12)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up12">—</div><div class="rt" id="t12">—</div></div>
+<div class="tr" id="row13"><div class="pn">Flat Cold Cup Lid</div><select class="qs" id="q13" onchange="ur(13)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up13">—</div><div class="rt" id="t13">—</div></div>
+<div class="tr" id="row14"><div class="pn">Vinyl Gloves XL</div><select class="qs" id="q14" onchange="ur(14)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up14">—</div><div class="rt" id="t14">—</div></div>
+<div class="tr" id="row15"><div class="pn">58 Gallon Garbage Bag</div><select class="qs" id="q15" onchange="ur(15)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up15">—</div><div class="rt" id="t15">—</div></div>
+<div class="tr" id="row16"><div class="pn">Wrapped Plastic Straw</div><select class="qs" id="q16" onchange="ur(16)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up16">—</div><div class="rt" id="t16">—</div></div>
+<div class="tr" id="row17"><div class="pn">2 oz Portion Cup</div><select class="qs" id="q17" onchange="ur(17)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up17">—</div><div class="rt" id="t17">—</div></div>
+<div class="tr" id="row18"><div class="pn">2 oz Portion Cup Lid</div><select class="qs" id="q18" onchange="ur(18)"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select><div class="up" id="up18">—</div><div class="rt" id="t18">—</div></div>
+    </div>
+    <div class="totbar" id="totbar">
+      <span>Store Total</span>
+      <span class="totnum" id="stot">$0.00</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="mb14">
+    <div class="lbl">Notes (optional)</div>
+    <textarea id="notes" placeholder="Special instructions for this store..."></textarea>
+  </div>
+</div>
+
+<div class="botbar">
+  <div class="botinner">
+    <div class="prog"><b id="fc">0</b><span style="color:#888"> / 10 stores</span></div>
+    <button class="expbtn" id="expbtn" onclick="openExp()">&#128196; Save &amp; Export PDF</button>
+  </div>
+</div>
+
+<!-- Export overlay -->
+<div class="ov" id="expOv">
+  <div class="ecard">
+    <button class="xbtn" onclick="cls('expOv')">&#10005;</button>
+    <h2>Order Summary</h2>
+    <div id="expSum"></div>
+    <div class="btnrow">
+      <button class="pbtn" onclick="doPrint()">&#11015; Save as PDF</button>
+      <button class="nbtn" onclick="resetAll()">New Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Login overlay -->
+<div class="ov" id="loginOv">
+  <div class="lcard">
+    <h2>Admin Panel</h2>
+    <p>Enter PIN to continue</p>
+    <input class="pinin" type="password" id="pin" maxlength="6" placeholder="&bull;&bull;&bull;&bull;" onkeydown="if(event.key==='Enter')chkPin()">
+    <div class="perr" id="perr"></div>
+    <button class="lbtn" onclick="chkPin()">Enter</button><br>
+    <button class="lcanc" onclick="cls('loginOv')">Cancel</button>
+  </div>
+</div>
+
+<!-- Admin overlay -->
+<div class="aov" id="admOv">
+  <div class="apanel">
+    <div class="ahd">
+      <h2>&#9881; Admin Panel</h2>
+      <button class="acls" onclick="cls('admOv')">&#10005;</button>
+    </div>
+    <div class="abody">
+      <div class="atabs">
+        <button class="atab on" id="at-p" onclick="swt('p')">&#128230; Products</button>
+        <button class="atab" id="at-s" onclick="swt('s')">&#127978; Stores</button>
+      </div>
+      <div class="atc on" id="atc-p">
+        <div class="attl">Products &amp; Prices</div>
+        <div id="apl"></div>
+        <div class="addrow">
+          <input class="addinp" id="npn" placeholder="Product name...">
+          <input class="apip addinp" id="npp" type="number" placeholder="Price $" min="0" step="0.01" style="flex:none;width:88px">
+          <button class="addbtn" onclick="addP()">+ Add</button>
+        </div>
+      </div>
+      <div class="atc" id="atc-s">
+        <div class="attl">Stores</div>
+        <div id="asl"></div>
+        <div class="addrow">
+          <input class="addinp" id="nsk" placeholder="Nickname" style="flex:none;width:122px">
+          <input class="addinp" id="nsa" placeholder="Full address...">
+          <button class="addbtn" onclick="addS()">+ Add</button>
+        </div>
+      </div>
+      <button class="savall" onclick="saveAll()">&#10003; Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var PIN="5012",aSt=null,ords={};
+var P=[{n:"10\" Pizza Boxes",p:""},{n:"12\" Pizza Boxes",p:""},{n:"18\" Pizza Boxes",p:""},{n:"Paper Plate",p:""},{n:"Aluminum Foil Roll",p:""},{n:"7\" Aluminum Pan",p:""},{n:"7\" Dome Lid Wax Paper",p:""},{n:"10*10 3/4",p:""},{n:"Quick Fold Napkin",p:""},{n:"Brown Paper Towel",p:""},{n:"Smile Face Shopping Bag",p:""},{n:"#12 Grocery Paper Bag",p:""},{n:"16 oz Cold Cup",p:""},{n:"Flat Cold Cup Lid",p:""},{n:"Vinyl Gloves XL",p:""},{n:"58 Gallon Garbage Bag",p:""},{n:"Wrapped Plastic Straw",p:""},{n:"2 oz Portion Cup",p:""},{n:"2 oz Portion Cup Lid",p:""}];
+var S=[{k:"Bronx",a:"399 East 149th Street, Bronx, NY"},{k:"Bronx-2",a:"276 East 149th Street, Bronx, NY"},{k:"Bronx-3",a:"1043 East 163rd Street, Bronx, NY"},{k:"Brooklyn Broadway",a:"297 Broadway, Brooklyn, NY"},{k:"Fulton-1",a:"1276 Fulton Street, Brooklyn, NY"},{k:"Fulton-2",a:"472 Fulton Street, Brooklyn, NY"},{k:"Brooklyn New",a:"22 4th Avenue, Brooklyn, NY"},{k:"Willoughby",a:"44 Willoughby Street, Brooklyn, NY"},{k:"Manhattan",a:"200 E 116th Street, New York, NY"},{k:"Queen",a:"120-10 Queens Boulevard, Jamaica, NY"}];
+
+function tg(k){try{return localStorage.getItem(k);}catch(e){}try{return sessionStorage.getItem(k);}catch(e){}return null;}
+function ts(k,v){try{localStorage.setItem(k,v);}catch(e){}try{sessionStorage.setItem(k,v);}catch(e){}}
+function cls(id){document.getElementById(id).classList.remove('on');}
+
+function loadSaved(){
+  var pd=tg('nsp_p'),sd=tg('nsp_s');
+  if(pd)P=JSON.parse(pd);
+  if(sd)S=JSON.parse(sd);
+  syncPrices();
+  syncStoreTabs();
+}
+
+function syncPrices(){
+  P.forEach(function(p,i){
+    var el=document.getElementById('up'+i);
+    if(el){el.textContent=p.p?'$'+parseFloat(p.p).toFixed(2):'—';el.className='up'+(p.p?' has':'');}
+  });
+}
+
+function syncStoreTabs(){
+  var w=document.getElementById('stabs');
+  w.innerHTML='';
+  S.forEach(function(s,i){
+    var b=document.createElement('button');
+    b.className='stab'+(aSt===i?' on':'')+(ords[i]?' done':'');
+    b.textContent=s.k;
+    b.onclick=(function(idx){return function(){selStore(idx);};})(i);
+    w.appendChild(b);
+  });
+}
+
+function selStore(i){
+  saveOrd();
+  aSt=i;
+  syncStoreTabs();
+  document.getElementById('saddr').textContent=S[i].a;
+  // Reset rows
+  P.forEach(function(p,pi){
+    var el=document.getElementById('q'+pi);
+    if(el){el.value='';el.className='qs';}
+    var te=document.getElementById('t'+pi);if(te){te.textContent='—';te.className='rt';}
+    var row=document.getElementById('row'+pi);if(row){row.classList.remove('done');}
+  });
+  document.getElementById('notes').value='';
+  document.getElementById('totbar').className='totbar';
+  // Restore saved order
+  if(ords[i]){
+    P.forEach(function(p,pi){
+      if(ords[i].q[pi]){
+        var el=document.getElementById('q'+pi);
+        if(el){el.value=ords[i].q[pi];ur(pi,true);}
+      }
+    });
+    document.getElementById('notes').value=ords[i].n||'';
+  }
+  updTot();
+}
+
+function saveOrd(){
+  if(aSt===null)return;
+  var q={},has=false;
+  P.forEach(function(p,i){
+    var el=document.getElementById('q'+i);
+    var v=el?el.value:'';
+    if(v)has=true;
+    q[i]=v;
+  });
+  var nt=document.getElementById('notes').value;
+  if(has||nt){ords[aSt]={q:q,n:nt};}
+  else{delete ords[aSt];}
+  updProg();
+}
+
+function ur(i,silent){
+  var el=document.getElementById('q'+i);if(!el)return;
+  var qty=parseInt(el.value)||0,price=parseFloat(P[i]&&P[i].p)||0;
+  el.className=qty>0?'qs on':'qs';
+  var te=document.getElementById('t'+i);
+  var row=document.getElementById('row'+i);
+  if(qty>0&&price>0){
+    te.textContent='$'+(qty*price).toFixed(2);te.className='rt on';
+    if(row)row.classList.add('done');
+  }else{
+    te.textContent='—';te.className='rt';
+    if(row)row.classList.remove('done');
+  }
+  if(!silent)saveOrd();
+  updTot();
+}
+
+function updTot(){
+  var s=0;
+  P.forEach(function(p,i){
+    var q=parseInt((document.getElementById('q'+i)||{}).value)||0;
+    s+=q*(parseFloat(p.p)||0);
+  });
+  document.getElementById('stot').textContent='$'+s.toFixed(2);
+  document.getElementById('totbar').className='totbar'+(s>0?' has':'');
+}
+
+function updProg(){
+  var fc=Object.keys(ords).length;
+  document.getElementById('fc').textContent=fc;
+  var btn=document.getElementById('expbtn');
+  btn.className='expbtn'+(fc>0?' ready':'');
+  syncStoreTabs();
+}
+
+function openExp(){
+  saveOrd();
+  if(Object.keys(ords).length===0){alert('Please fill in at least one store order first.');return;}
+  var html='',gt=0;
+  Object.keys(ords).forEach(function(si){
+    var st=S[parseInt(si)],od=ords[si];if(!st)return;
+    var stt=0,rows='';
+    P.forEach(function(p,pi){
+      var q=parseInt(od.q[pi])||0;if(!q)return;
+      var pr=parseFloat(p.p)||0,lt=pr?'$'+(q*pr).toFixed(2):'—';
+      if(pr)stt+=q*pr;
+      rows+='<tr><td style="padding:3px 0">'+p.n+'</td><td style="text-align:center;padding:3px 4px">'+q+'</td><td style="text-align:center;padding:3px 4px">'+(pr?'$'+pr.toFixed(2):'—')+'</td><td style="text-align:right;font-weight:700;color:#2d7a4f;padding:3px 0">'+lt+'</td></tr>';
+    });
+    gt+=stt;
+    html+='<div class="sblock"><h3>'+st.k+'</h3><div class="sa">'+st.a+'</div>'+
+      '<table style="width:100%;font-size:11px;border-collapse:collapse;font-family:monospace">'+
+      '<thead><tr style="border-bottom:1px solid #c3e6d0"><th style="text-align:left;padding:3px 0;font-size:10px">Product</th><th style="text-align:center;padding:3px 4px;font-size:10px">Qty</th><th style="text-align:center;padding:3px 4px;font-size:10px">Unit$</th><th style="text-align:right;padding:3px 0;font-size:10px">Total</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+
+      (stt?'<div class="stot"><span>Store Total</span><span>$'+stt.toFixed(2)+'</span></div>':'')+
+      (od.n?'<p style="font-size:11px;color:#666;margin-top:6px;font-style:italic">Notes: '+od.n+'</p>':'')+
+    '</div>';
+  });
+  html+='<div class="grow"><span>Grand Total</span><strong>$'+gt.toFixed(2)+'</strong></div>';
+  document.getElementById('expSum').innerHTML=html;
+  document.getElementById('expOv').classList.add('on');
+}
+
+function doPrint(){
+  var d=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  var h='<div class="ph"><h2>NS Packaging — Order Form</h2><p>Date: '+d+'</p></div>';
+  var gt=0;
+  Object.keys(ords).forEach(function(si){
+    var st=S[parseInt(si)],od=ords[si];if(!st)return;
+    var stt=0;
+    h+='<div class="psh"><h3>'+st.k+'</h3><p>'+st.a+'</p></div>';
+    h+='<div class="tbl"><div class="th"><span>Product</span><span>Qty</span><span>Unit $</span><span>Total</span></div>';
+    P.forEach(function(p,pi){
+      var q=parseInt(od.q[pi])||0;if(!q)return;
+      var pr=parseFloat(p.p)||0,lt=pr?'$'+(q*pr).toFixed(2):'—';
+      if(pr)stt+=q*pr;
+      var bg=pi%2===0?'#f0faf5':'#fff';
+      h+='<div class="tr done" style="background:'+bg+'"><div class="pn">'+p.n+'</div>'+
+        '<div style="text-align:center;font-family:monospace;font-weight:700;color:#c84b2f;font-size:13px;">'+q+'</div>'+
+        '<div class="up has">'+(pr?'$'+pr.toFixed(2):'—')+'</div>'+
+        '<div class="rt on">'+lt+'</div></div>';
+    });
+    gt+=stt;
+    h+='<div class="totbar has"><span>Store Total</span><span class="totnum">'+(stt?'$'+stt.toFixed(2):'—')+'</span></div></div>';
+    if(od.n)h+='<p style="font-size:10px;color:#555;margin:5px 0 14px;font-style:italic">Notes: '+od.n+'</p>';
+  });
+  h+='<div style="margin-top:18px;padding:12px 14px;background:#2d7a4f;border-radius:9px;display:flex;justify-content:space-between;-webkit-print-color-adjust:exact;print-color-adjust:exact;">'+
+    '<span style="font-size:12px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase">Grand Total</span>'+
+    '<span style="font-size:22px;font-weight:700;color:#fff;font-family:monospace">$'+gt.toFixed(2)+'</span></div>';
+  document.getElementById('pdoc').innerHTML=h;
+  document.getElementById('expOv').classList.remove('on');
+  var orig=document.title;
+  document.title='NS Packaging Order — '+d;
+  setTimeout(function(){
+    window.print();
+    document.title=orig;
+    document.getElementById('pdoc').innerHTML='';
+    setTimeout(function(){document.getElementById('expOv').classList.add('on');},800);
+  },300);
+}
+
+function resetAll(){
+  ords={};aSt=null;
+  document.getElementById('notes').value='';
+  cls('expOv');
+  document.querySelectorAll('.stab').forEach(function(b){b.className='stab';});
+  document.getElementById('saddr').textContent='Select a store above to begin.';
+  P.forEach(function(p,i){
+    var el=document.getElementById('q'+i);if(el){el.value='';el.className='qs';}
+    var te=document.getElementById('t'+i);if(te){te.textContent='—';te.className='rt';}
+    var row=document.getElementById('row'+i);if(row)row.classList.remove('done');
+  });
+  document.getElementById('stot').textContent='$0.00';
+  document.getElementById('totbar').className='totbar';
+  document.getElementById('fc').textContent='0';
+  document.getElementById('expbtn').className='expbtn';
+}
+
+function openAdm(){
+  document.getElementById('pin').value='';
+  document.getElementById('perr').textContent='';
+  document.getElementById('loginOv').classList.add('on');
+  setTimeout(function(){document.getElementById('pin').focus();},150);
+}
+function chkPin(){
+  if(document.getElementById('pin').value===PIN){cls('loginOv');document.getElementById('admOv').classList.add('on');bldAP();bldAS();}
+  else{document.getElementById('perr').textContent='Incorrect PIN.';document.getElementById('pin').value='';}
+}
+function swt(t){
+  ['p','s'].forEach(function(x){
+    document.getElementById('at-'+x).classList.remove('on');
+    document.getElementById('atc-'+x).classList.remove('on');
+  });
+  document.getElementById('at-'+t).classList.add('on');
+  document.getElementById('atc-'+t).classList.add('on');
+}
+function bldAP(){
+  var l=document.getElementById('apl');l.innerHTML='';
+  P.forEach(function(p,i){
+    var d=document.createElement('div');d.className='api';
+    d.innerHTML='<input class="ani" id="apn'+i+'" value="'+p.n.replace(/"/g,'&quot;')+'" placeholder="Product name">'+
+      '<input class="apip" id="app'+i+'" type="number" value="'+(p.p||'')+'" placeholder="$0.00" min="0" step="0.01">'+
+      '<button class="del" onclick="delP('+i+')">&#10005;</button>';
+    l.appendChild(d);
+  });
+}
+function bldAS(){
+  var l=document.getElementById('asl');l.innerHTML='';
+  S.forEach(function(s,i){
+    var d=document.createElement('div');d.className='asi';
+    d.innerHTML='<input class="akni" id="ask'+i+'" value="'+s.k.replace(/"/g,'&quot;')+'" placeholder="Nickname">'+
+      '<input class="aai" id="asa'+i+'" value="'+s.a.replace(/"/g,'&quot;')+'" placeholder="Address">'+
+      '<button class="del" onclick="delS('+i+')">&#10005;</button>';
+    l.appendChild(d);
+  });
+}
+function delP(i){if(confirm('Delete "'+P[i].n+'"?')){P.splice(i,1);bldAP();}}
+function delS(i){if(confirm('Delete "'+S[i].k+'"?')){S.splice(i,1);bldAS();}}
+function addP(){
+  var n=document.getElementById('npn').value.trim(),pr=document.getElementById('npp').value;
+  if(!n){alert('Enter product name.');return;}
+  P.push({n:n,p:pr||''});
+  document.getElementById('npn').value='';document.getElementById('npp').value='';
+  bldAP();
+}
+function addS(){
+  var n=document.getElementById('nsk').value.trim(),a=document.getElementById('nsa').value.trim();
+  if(!n||!a){alert('Enter both fields.');return;}
+  S.push({k:n,a:a});
+  document.getElementById('nsk').value='';document.getElementById('nsa').value='';
+  bldAS();
+}
+function saveAll(){
+  P=P.map(function(p,i){return{n:(document.getElementById('apn'+i)||{value:p.n}).value.trim(),p:(document.getElementById('app'+i)||{value:''}).value};}); 
+  S=S.map(function(s,i){return{k:(document.getElementById('ask'+i)||{value:s.k}).value.trim(),a:(document.getElementById('asa'+i)||{value:s.a}).value.trim()};}); 
+  ts('nsp_p',JSON.stringify(P));ts('nsp_s',JSON.stringify(S));
+  ords={};aSt=null;
+  syncPrices();syncStoreTabs();
+  cls('admOv');
+  document.getElementById('saddr').textContent='Select a store above to begin.';
+  document.getElementById('fc').textContent='0';
+  document.getElementById('expbtn').className='expbtn';
+  P.forEach(function(p,i){
+    var el=document.getElementById('q'+i);if(el){el.value='';el.className='qs';}
+    var te=document.getElementById('t'+i);if(te){te.textContent='—';te.className='rt';}
+    var row=document.getElementById('row'+i);if(row)row.classList.remove('done');
+  });
+  document.getElementById('stot').textContent='$0.00';
+  document.getElementById('totbar').className='totbar';
+  var t=document.createElement('div');t.className='toast';t.textContent='&#10003; Saved!';document.body.appendChild(t);
+  setTimeout(function(){t.remove();},2200);
+}
+
+loadSaved();
+</script>
+</body>
+</html>
